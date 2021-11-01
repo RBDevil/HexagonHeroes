@@ -127,7 +127,7 @@ namespace Networking
 
 			// Spawn the local player on all clients
 			Random random = new Random();
-			SendSpawnPacketToAll(all, player, random.Next(-3, 3), random.Next(-3, 3));
+			SendSpawnPacketToAll(all, player, random.Next(0, 5), random.Next(0, 5));
 		}
 
 		public void SendLocalPlayerPacket(NetConnection local, string player)

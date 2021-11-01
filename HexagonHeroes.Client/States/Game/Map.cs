@@ -26,35 +26,37 @@ namespace HexagonHeroes.Client.States.Game
             }
         }
 
-        public void Draw(SpriteBatch sb)
+        public void Draw(SpriteBatch sb, Point moveIndicatorPosition)
         {
             foreach (Tile tile in map)
             {
                 tile.Draw(sb);
             }
 
-            HighlightHoveredTile(sb);
+            HighlightTile(sb, moveIndicatorPosition);
+
         }
 
-        private void HighlightHoveredTile(SpriteBatch sb)
+        void HighlightTile(SpriteBatch sb, Point positionIndex)
         {
-            Point hoveredTile = GetHoveredTile();
-
-            if (hoveredTile.X % 2 == 0)
+            if (positionIndex.X % 2 == 0)
             {
                 sb.Draw(Textures.Container["tile_frame"],
-                        new Vector2(hoveredTile.X * Textures.TileSize * 3 / 4, hoveredTile.Y * Textures.TileSize),
+                        new Vector2(positionIndex.X * Textures.TileSize * 3 / 4, positionIndex.Y * Textures.TileSize),
                         Color.White);
             }
             else
             {
                 sb.Draw(Textures.Container["tile_frame"],
-                        new Vector2(hoveredTile.X * Textures.TileSize * 3 / 4, (hoveredTile.Y * Textures.TileSize) - Textures.TileSize / 2),
+                        new Vector2(positionIndex.X * Textures.TileSize * 3 / 4, (positionIndex.Y * Textures.TileSize) - Textures.TileSize / 2),
                         Color.White);
             }
         }
-
-        Point GetHoveredTile()
+        /// <summary>
+        /// returns -1, -1 if no tile is hovered
+        /// </summary>
+        /// <returns></returns>
+        public Point GetHoveredTile()
         {
             // get which tile is closest
             Point closestTile = new Point(
@@ -117,6 +119,16 @@ namespace HexagonHeroes.Client.States.Game
                 closestTile.Y - 1 < size.Y && closestTile.Y - 1 >= 0)
             {
                 nextToCheck = new Point(closestTile.X + 1, closestTile.Y - 1);
+                if (CheckIfHovered(nextToCheck))
+                {
+                    return nextToCheck;
+                }
+            }
+
+            if (closestTile.X < size.X && closestTile.X >= 0 &&
+                closestTile.Y - 1 < size.Y && closestTile.Y - 1 >= 0)
+            {
+                nextToCheck = new Point(closestTile.X, closestTile.Y - 1);
                 if (CheckIfHovered(nextToCheck))
                 {
                     return nextToCheck;

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HexagonHeroes.Client.Resources;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -8,21 +9,34 @@ namespace HexagonHeroes.Client.States.Game
 {
     class Entity
     {
-        public Point Position { get; private set; }
-        public Texture2D texture { get; }
-        public int Health { get; private set; }
-        public int MaxHealth { get; private set; }
-        public Entity(Point position, Texture2D texture, int maxHealth)
+        public string ID { get; }
+        public Point PositionIndex { get; private set; }
+        public Texture2D Texture { get; }
+        public Entity(string ID, Point position, Texture2D texture)
         {
-            Position = position;
-            this.texture = texture;
-            MaxHealth = maxHealth;
-            Health = MaxHealth;
+            this.ID = ID;
+            PositionIndex = position;
+            Texture = texture;
         }
 
+        public void Move(Point position)
+        {
+            PositionIndex = position;
+        }
         public void Draw(SpriteBatch sb)
         {
-
+            if (PositionIndex.X % 2 == 0)
+            {
+                sb.Draw(Texture,
+                        new Vector2(PositionIndex.X * Textures.TileSize * 3 / 4, PositionIndex.Y * Textures.TileSize),
+                        Color.White);
+            }
+            else
+            {
+                sb.Draw(Texture,
+                        new Vector2(PositionIndex.X * Textures.TileSize * 3 / 4, (PositionIndex.Y * Textures.TileSize) - Textures.TileSize / 2),
+                        Color.White);
+            }
         }
     }
 }

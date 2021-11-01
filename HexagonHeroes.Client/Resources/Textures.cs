@@ -27,6 +27,7 @@ namespace HexagonHeroes.Client.Resources
             Container.Add("tile", content.Load<Texture2D>("tile"));
             TileSize = Container["tile"].Width;
             Container.Add("tile_frame", content.Load<Texture2D>("tile_frame"));
+            Container.Add("player", content.Load<Texture2D>("player"));
         }
     }
 }

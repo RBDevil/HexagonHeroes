@@ -15,6 +15,8 @@ namespace Networking
 
 	public class Client
 	{
+		public delegate void MessageRecived(NetIncomingMessage message);
+		public event MessageRecived _MessageRecived;
 		public NetClient client { get; set; }
 
 		public Client(int port, string server, string serverName)
@@ -40,26 +42,7 @@ namespace Networking
 				switch (message.MessageType)
 				{
 					case NetIncomingMessageType.Data:
-						var packetType = (int)message.ReadByte();
-
-						Packet packet;
-
-						switch (packetType)
-						{
-							case (int)PacketTypes.LocalPlayerPacket:
-
-								break;
-							case (int)PacketTypes.PlayerDisconnectsPacket:
-
-								break;
-							case (int)PacketTypes.PositionPacket:
-
-								break;
-							case (int)PacketTypes.SpawnPacket:
-
-								break;
-						}
-
+						_MessageRecived?.Invoke(message);
 						break;
 					case NetIncomingMessageType.DebugMessage:
 					case NetIncomingMessageType.ErrorMessage:
