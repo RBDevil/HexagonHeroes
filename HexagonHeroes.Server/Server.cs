@@ -19,7 +19,6 @@ namespace Networking
 		private NetServer server;
 		private Thread listenerThread, countDownThread;
 		private List<string> players;
-		private Dictionary<string, PlayerPosition> playerPositions; // move to logic
 		private int countDown;
 		LogicUpdater logic;
 
@@ -28,7 +27,6 @@ namespace Networking
 			logic = new LogicUpdater();
 			countDown = 10;
 			players = new List<string>();
-			playerPositions = new Dictionary<string, PlayerPosition>();
 
 			NetPeerConfiguration config = new NetPeerConfiguration("game");
 			config.MaximumConnections = 100;
@@ -57,7 +55,7 @@ namespace Networking
 				List<NetConnection> all = server.Connections;
 				if (all.Count > 0)
 				{
-					SendCounterToAll(all, countDown);
+					SendTimerToAll(all, countDown);
 				}
 
 				Logger.Info("Countdown: " + countDown.ToString());
@@ -121,7 +119,9 @@ namespace Networking
 									SendPlayerDisconnectPacket(all, (PlayerDisconnectsPacket)packet);
 									break;
 								case (byte)PacketTypes.PlayerInputPacket:
-
+									packet = new PlayerInputPacket();
+									packet.NetIncomingMessageToPacket(message);
+									UpdateLogic((PlayerInputPacket)packet);
 									break;
 								default:
 									Logger.Error("Unhandled data / packet type: " + type);
@@ -146,18 +146,39 @@ namespace Networking
 			}
 		}
 
-		public void SpawnPlayers(List<NetConnection> all, NetConnection local, string player)
+        private void UpdateLogic(PlayerInputPacket packet)
+		{ 
+			logic.MovementInput(packet.playerID, (int)packet.X, (int)packet.Y);
+			List<NetConnection> all = server.Connections;
+			if (all.Count > 0)
+			{
+				PositionPacket packetOut = new PositionPacket();
+				packetOut.player = packet.playerID;
+				int[] newPosition = logic.GetEntityPosition(packet.playerID);
+				packetOut.X = newPosition[0];
+				packetOut.Y = newPosition[1];
+				SendPositionPacket(all, (PositionPacket)packetOut);
+			}
+		}
+
+        public void SpawnPlayers(List<NetConnection> all, NetConnection local, string player)
 		{
 			// Spawn all the clients on the local player
 			all.ForEach(p => {
 				string _player = NetUtility.ToHexString(p.RemoteUniqueIdentifier);
 				if (player != _player)
-					SendSpawnPacketToLocal(local, _player, playerPositions[_player].X, playerPositions[_player].Y);
+				{
+					int[] playerPosition = logic.GetEntityPosition(_player);
+					SendSpawnPacketToLocal(local, _player, playerPosition[0], playerPosition[1]);
+				}
 			});
 
 			// Spawn the local player on all clients
 			Random random = new Random();
-			SendSpawnPacketToAll(all, player, random.Next(0, 5), random.Next(0, 5));
+			int X = random.Next(0, 5);
+			int Y = random.Next(0, 5);
+			SendSpawnPacketToAll(all, player, X, Y);
+			logic.AddPlayer(player, X, Y);
 		}
 
 		public void SendLocalPlayerPacket(NetConnection local, string player)
@@ -173,8 +194,6 @@ namespace Networking
 		{
 			Logger.Info("Sending user spawn message for player " + player);
 
-			playerPositions[player] = new PlayerPosition() { X = X, Y = Y };
-
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
 			new SpawnPacket() { player = player, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, local, NetDeliveryMethod.ReliableOrdered, 0);
@@ -183,8 +202,6 @@ namespace Networking
 		public void SendSpawnPacketToAll(List<NetConnection> all, string player, float X, float Y)
 		{
 			Logger.Info("Sending user spawn message for player " + player);
-
-			playerPositions[player] = new PlayerPosition() { X = X, Y = Y };
 
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
 			new SpawnPacket() { player = player, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
@@ -195,8 +212,6 @@ namespace Networking
 		{
 			Logger.Info("Sending position for " + packet.player);
 
-			playerPositions[packet.player] = new PlayerPosition() { X = packet.X, Y = packet.Y };
-
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
 			packet.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
@@ -206,15 +221,15 @@ namespace Networking
 		{
 			Logger.Info("Disconnecting for " + packet.player);
 
-			playerPositions.Remove(packet.player);
 			players.Remove(packet.player);
+			logic.DeletePlayer(packet.player);
 
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
 			packet.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
 		}
 
-		public void SendCounterToAll(List<NetConnection> all, int counter)
+		public void SendTimerToAll(List<NetConnection> all, int counter)
         {
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
 			new TimerPacket() { Counter = counter }.PacketToNetOutGoingMessage(outgoingMessage);

@@ -67,13 +67,22 @@ namespace HexagonHeroes.Client.States.Game
                     break;
             }
         }
-
         private static void SetTimer(TimerPacket packet)
         {
             countdown = (int)packet.Counter;
             if (countdown == 0)
             {
                 // send move input to sever
+                if (moveIndicator.X != -1 && moveIndicator.Y != -1)
+                {
+                    NetOutgoingMessage message = client.client.CreateMessage();
+                    new PlayerInputPacket() { playerID = localPlayerID,
+                        X = moveIndicator.X,
+                        Y = moveIndicator.Y }
+                    .PacketToNetOutGoingMessage(message);
+                    client.client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+                    client.client.FlushSendQueue();
+                }
             }
         }
         static void SpawnPlayer(SpawnPacket packet)
@@ -137,7 +146,6 @@ namespace HexagonHeroes.Client.States.Game
             if (active)
             {
                 CheckMouseInput();
-
             }
         }
         public static void Draw(SpriteBatch sb)
