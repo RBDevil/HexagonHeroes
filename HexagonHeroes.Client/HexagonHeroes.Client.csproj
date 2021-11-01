@@ -25,4 +25,7 @@
       <HintPath>..\..\lidgren-network-gen3\Lidgren.Network\bin\Debug\Lidgren.Network.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="States\Menu\" />
+  </ItemGroup>
 </Project>

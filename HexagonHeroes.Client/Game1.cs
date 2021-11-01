@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HexagonHeroes.Client.Resources;
+using HexagonHeroes.Client.States.Game;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -18,7 +20,6 @@ namespace HexagonHeroes.Client
 
         protected override void Initialize()
         {
-            Networking.Client client = new Networking.Client(14242, "127.0.0.1", "game");
 
             base.Initialize();
         }
@@ -26,16 +27,15 @@ namespace HexagonHeroes.Client
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            Textures.LoadTextures(Content);
+            GameState.Activate();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            MouseManager.Update();
 
-            // TODO: Add your update logic here
+            GameState.Update();
 
             base.Update(gameTime);
         }
@@ -44,7 +44,9 @@ namespace HexagonHeroes.Client
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            _spriteBatch.Begin();
+            GameState.Draw(_spriteBatch);
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }
