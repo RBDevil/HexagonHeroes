@@ -4,6 +4,7 @@ using System.Threading;
 using Packets;
 using Logging;
 using Lidgren.Network;
+using HexagonHeroes.Logic;
 
 namespace Networking
 {
@@ -16,12 +17,16 @@ namespace Networking
 	public class Server
 	{
 		private NetServer server;
-		private Thread thread;
+		private Thread listenerThread, countDownThread;
 		private List<string> players;
-		private Dictionary<string, PlayerPosition> playerPositions;
+		private Dictionary<string, PlayerPosition> playerPositions; // move to logic
+		private int countDown;
+		LogicUpdater logic;
 
 		public Server()
 		{
+			logic = new LogicUpdater();
+			countDown = 10;
 			players = new List<string>();
 			playerPositions = new Dictionary<string, PlayerPosition>();
 
@@ -32,10 +37,32 @@ namespace Networking
 			server = new NetServer(config);
 			server.Start();
 
-			thread = new Thread(Listen);
-			thread.Start();
-		}
+			listenerThread = new Thread(Listen);
+			listenerThread.Start();
 
+			countDownThread = new Thread(CountDown);
+			countDownThread.Start();
+		}
+		void CountDown()
+        {
+			while (0 == 0)
+			{
+				Thread.Sleep(1000);
+				if (countDown == 0)
+				{
+					countDown = 10;
+				}
+		
+				countDown--;
+				List<NetConnection> all = server.Connections;
+				if (all.Count > 0)
+				{
+					SendCounterToAll(all, countDown);
+				}
+
+				Logger.Info("Countdown: " + countDown.ToString());
+			}
+        }
 		public void Listen()
 		{
 			Logger.Info("Listening for clients.");
@@ -92,6 +119,9 @@ namespace Networking
 									packet = new PlayerDisconnectsPacket();
 									packet.NetIncomingMessageToPacket(message);
 									SendPlayerDisconnectPacket(all, (PlayerDisconnectsPacket)packet);
+									break;
+								case (byte)PacketTypes.PlayerInputPacket:
+
 									break;
 								default:
 									Logger.Error("Unhandled data / packet type: " + type);
@@ -181,6 +211,13 @@ namespace Networking
 
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
 			packet.PacketToNetOutGoingMessage(outgoingMessage);
+			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
+		}
+
+		public void SendCounterToAll(List<NetConnection> all, int counter)
+        {
+			NetOutgoingMessage outgoingMessage = server.CreateMessage();
+			new TimerPacket() { Counter = counter }.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
 		}
 	}

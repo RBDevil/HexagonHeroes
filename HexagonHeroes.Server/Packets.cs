@@ -7,7 +7,9 @@ namespace Packets
         LocalPlayerPacket,
         PlayerDisconnectsPacket,
         PositionPacket,
-        SpawnPacket
+        SpawnPacket,
+        CounterPacket,
+        PlayerInputPacket,
     }
 
     public interface IPacket
@@ -94,6 +96,44 @@ namespace Packets
             X = message.ReadFloat();
             Y = message.ReadFloat();
             player = message.ReadString();
+        }
+    }
+
+    public class TimerPacket : Packet
+    {
+        public float Counter { get; set; }
+
+        public override void NetIncomingMessageToPacket(NetIncomingMessage message)
+        {
+            Counter = message.ReadFloat();
+        }
+
+        public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
+        {
+            message.Write((byte)PacketTypes.CounterPacket);
+            message.Write(Counter);
+        }
+    }
+
+    public class PlayerInputPacket : Packet
+    {
+        public float X;
+        public float Y;
+        public string playerID;
+
+        public override void NetIncomingMessageToPacket(NetIncomingMessage message)
+        {
+            X = message.ReadFloat();
+            Y = message.ReadFloat();
+            playerID = message.ReadString();
+        }
+
+        public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
+        {
+            message.Write((byte)PacketTypes.PlayerInputPacket);
+            message.Write(X);
+            message.Write(Y);
+            message.Write(playerID);
         }
     }
 }

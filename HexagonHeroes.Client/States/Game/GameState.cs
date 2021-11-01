@@ -17,6 +17,7 @@ namespace HexagonHeroes.Client.States.Game
         static string localPlayerID;
         static List<Entity> entities;
         static Point moveIndicator;
+        static int countdown;
         public static void Exit()
         {
             active = false;
@@ -29,6 +30,7 @@ namespace HexagonHeroes.Client.States.Game
             client = new Networking.Client(14242, "127.0.0.1", "game");
             client._MessageRecived += ReceiveMessage;
             map = new Map(new Point(30, 10));
+            countdown = 10;
         }
         public static void ReceiveMessage(NetIncomingMessage message)
         {
@@ -58,6 +60,20 @@ namespace HexagonHeroes.Client.States.Game
                     packet.NetIncomingMessageToPacket(message);
                     SpawnPlayer((SpawnPacket)packet);
                     break;
+                case (int)PacketTypes.CounterPacket:
+                    packet = new TimerPacket();
+                    packet.NetIncomingMessageToPacket(message);
+                    SetTimer((TimerPacket)packet);
+                    break;
+            }
+        }
+
+        private static void SetTimer(TimerPacket packet)
+        {
+            countdown = (int)packet.Counter;
+            if (countdown == 0)
+            {
+                // send move input to sever
             }
         }
         static void SpawnPlayer(SpawnPacket packet)
@@ -102,6 +118,7 @@ namespace HexagonHeroes.Client.States.Game
         }
         static bool CheckIfAdjacent(Point positionIndex1, Point positionIndex2)
         {
+            // BUGOS!
             if (positionIndex2.X - 1 == positionIndex1.X && positionIndex2.Y - 1 == positionIndex1.Y ||
                 positionIndex2.X - 1 == positionIndex1.X && positionIndex2.Y == positionIndex1.Y ||
                 positionIndex2.X == positionIndex1.X && positionIndex2.Y + 1 == positionIndex1.Y ||
@@ -131,6 +148,10 @@ namespace HexagonHeroes.Client.States.Game
                 foreach (Entity entity in entities)
                 {
                     entity.Draw(sb);
+                }
+                if (countdown == 0)
+                {
+                    sb.Draw(Textures.Container["tile_frame"], new Vector2(5, 5), Color.White);
                 }
             }
         }
