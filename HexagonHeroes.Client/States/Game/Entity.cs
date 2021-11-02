@@ -15,12 +15,14 @@ namespace HexagonHeroes.Client.States.Game
         public Texture2D Texture { get; }
         public int Health { get; private set; }
         public int MaxHealth { get; private set; }
-        public Entity(string ID, Point position, Texture2D texture)
+        public string FactionID { get; }
+        public Entity(string ID, Point position, Texture2D texture, string factionID)
         {
             this.ID = ID;
             PositionIndex = position;
             Texture = texture;
             MoveIndicator = new Point(-1, -1);
+            FactionID = factionID;
             MaxHealth = 100;
             Health = 90;
         }

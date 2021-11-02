@@ -60,21 +60,21 @@ namespace Packets
     {
         public float X { get; set; }
         public float Y { get; set; }
-        public string player { get; set; }
+        public string entityID { get; set; }
 
         public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
         {
             message.Write((byte)PacketTypes.PositionPacket);
             message.Write(X);
             message.Write(Y);
-            message.Write(player);
+            message.Write(entityID);
         }
 
         public override void NetIncomingMessageToPacket(NetIncomingMessage message)
         {
             X = message.ReadFloat();
             Y = message.ReadFloat();
-            player = message.ReadString();
+            entityID = message.ReadString();
         }
     }
 
@@ -82,20 +82,20 @@ namespace Packets
     {
         public float X { get; set; }
         public float Y { get; set; }
-        public string player { get; set; }
+        public string entityID { get; set; }
         public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
         {
             message.Write((byte)PacketTypes.SpawnPacket);
             message.Write(X);
             message.Write(Y);
-            message.Write(player);
+            message.Write(entityID);
         }
 
         public override void NetIncomingMessageToPacket(NetIncomingMessage message)
         {
             X = message.ReadFloat();
             Y = message.ReadFloat();
-            player = message.ReadString();
+            entityID = message.ReadString();
         }
     }
 

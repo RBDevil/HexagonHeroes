@@ -85,7 +85,7 @@ namespace HexagonHeroes.Client.States.Game
         }
         static void SpawnPlayer(SpawnPacket packet)
         {
-            Entity entity = new Entity(packet.playerID, new Point((int)packet.X, (int)packet.Y), Textures.Container["player"]);
+            Entity entity = new Entity(packet.playerID, new Point((int)packet.X, (int)packet.Y), Textures.Container["player"], "players");
             entities.Add(entity);
             if (localPlayer == null && packet.playerID == localPlayerID)
             {

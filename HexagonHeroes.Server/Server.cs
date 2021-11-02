@@ -88,7 +88,7 @@ namespace Networking
 								SendLocalPlayerPacket(message.SenderConnection, player);
 
 								// Send Use Spawn Message
-								SpawnPlayers(all, message.SenderConnection, player);
+								SpawnAllEntities(all, message.SenderConnection, player);
 							}
 							else if (status == NetConnectionStatus.Disconnected)
                             {
@@ -155,15 +155,17 @@ namespace Networking
 		private void UpdateTurn()
         {
 			logic.UpdateTurn();
+			// get all entities
 			List<NetConnection> all = server.Connections;
-			if (all.Count > 0)
+			List<string> allIDs = logic.GetAllEntityIDs();
+			
+			if (allIDs.Count > 0 && all.Count > 0)
             {
-                foreach (var item in all)
+                foreach (var id in allIDs)
                 {
 					PositionPacket packet = new PositionPacket();
-					string playerID = NetUtility.ToHexString(item.RemoteUniqueIdentifier);
-					int[] playerPosition = logic.GetEntityPosition(playerID);
-					packet.player = playerID;
+					int[] playerPosition = logic.GetEntityPosition(id);
+					packet.entityID = id;
 					packet.X = playerPosition[0];
 					packet.Y = playerPosition[1];
 					SendPositionPacket(all, packet);
@@ -172,17 +174,15 @@ namespace Networking
 
 		}
 
-        public void SpawnPlayers(List<NetConnection> all, NetConnection local, string player)
+        public void SpawnAllEntities(List<NetConnection> all, NetConnection local, string player)
 		{
-			// Spawn all the clients on the local player
-			all.ForEach(p => {
-				string _player = NetUtility.ToHexString(p.RemoteUniqueIdentifier);
-				if (player != _player)
-				{
-					int[] playerPosition = logic.GetEntityPosition(_player);
-					SendSpawnPacketToLocal(local, _player, playerPosition[0], playerPosition[1]);
-				}
-			});
+			// Spawn all the entities on the local player
+			List<string> allIds = logic.GetAllEntityIDs();
+            foreach (var id in allIds)
+            {
+				int[] entityPosition = logic.GetEntityPosition(id);
+				SendSpawnPacketToLocal(local, id, entityPosition[0], entityPosition[1]);
+            }
 
 			// Spawn the local player on all clients
 			Random random = new Random();
@@ -201,12 +201,12 @@ namespace Networking
 			server.SendMessage(outgoingMessage, local, NetDeliveryMethod.ReliableOrdered, 0);
 		}
 
-		public void SendSpawnPacketToLocal(NetConnection local, string player, float X, float Y)
+		public void SendSpawnPacketToLocal(NetConnection local, string entityID, float X, float Y)
 		{
-			Logger.Info("Sending user spawn message for player " + player);
+			Logger.Info("Sending user spawn message for player " + entityID);
 
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
-			new SpawnPacket() { player = player, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
+			new SpawnPacket() { entityID = entityID, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, local, NetDeliveryMethod.ReliableOrdered, 0);
 		}
 
@@ -215,13 +215,13 @@ namespace Networking
 			Logger.Info("Sending user spawn message for player " + player);
 
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
-			new SpawnPacket() { player = player, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
+			new SpawnPacket() { entityID = player, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
 		}
 
 		public void SendPositionPacket(List<NetConnection> all, PositionPacket packet)
 		{
-			Logger.Info("Sending position for " + packet.player);
+			Logger.Info("Sending position for " + packet.entityID);
 
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
 			packet.PacketToNetOutGoingMessage(outgoingMessage);

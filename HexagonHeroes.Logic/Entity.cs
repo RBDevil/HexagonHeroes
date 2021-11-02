@@ -12,13 +12,15 @@ namespace HexagonHeroes.Logic
         public int MoveIndicatorX { get; set; }
         public int MoveIndicatorY { get; set; }
         public int Health { get; set; }
-        public Entity(string ID, int positionX, int positionY)
+        public string FactionID { get; }
+        public Entity(string ID, int positionX, int positionY, string factionID)
         {
             this.ID = ID;
             PositionX = positionX;
             PositionY = positionY;
             MoveIndicatorX = -1;
             MoveIndicatorY = -1;
+            FactionID = factionID;
         }
     }
 }

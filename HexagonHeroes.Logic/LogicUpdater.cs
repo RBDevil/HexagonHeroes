@@ -10,14 +10,19 @@ namespace HexagonHeroes.Logic
         public LogicUpdater()
         {
             entities = new List<Entity>();
+            AddEnemy("enemy1", 8, 3);
         }
         public void DeletePlayer(string ID)
         {
             entities.Remove(entities.Find(e => e.ID == ID));
         }
+        public void AddEnemy(string ID, int positionX, int positionY)
+        {
+            entities.Add(new Entity(ID, positionX, positionY, "enemies"));
+        }
         public void AddPlayer(string ID, int positionX, int positionY)
         {
-            entities.Add(new Entity(ID, positionX, positionY));
+            entities.Add(new Entity(ID, positionX, positionY, "players"));
         }
         void MovementInput(string playerID, int toX, int toY)
         {
@@ -70,6 +75,16 @@ namespace HexagonHeroes.Logic
             {
                 return new int[] { -1, -1 };
             }
+        }
+        public List<string> GetAllEntityIDs()
+        {
+            List<string> IDs = new List<string>();
+            foreach (var item in entities)
+            {
+                IDs.Add(item.ID);
+            }
+
+            return IDs;
         }
         public void UpdateTurn()
         {
