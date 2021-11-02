@@ -117,7 +117,7 @@ namespace HexagonHeroes.Client.States.Game
                     }
                     // check if tile is adjacent to player position
                     {
-                        if (CheckIfAdjacent(hoveredTile, playerPosition))
+                        if (CheckIfAdjacent(playerPosition, hoveredTile))
                         {
                             moveIndicator = hoveredTile;
                         }
@@ -127,19 +127,30 @@ namespace HexagonHeroes.Client.States.Game
         }
         static bool CheckIfAdjacent(Point positionIndex1, Point positionIndex2)
         {
-            // BUGOS!
-            if (positionIndex2.X - 1 == positionIndex1.X && positionIndex2.Y - 1 == positionIndex1.Y ||
-                positionIndex2.X - 1 == positionIndex1.X && positionIndex2.Y == positionIndex1.Y ||
-                positionIndex2.X == positionIndex1.X && positionIndex2.Y + 1 == positionIndex1.Y ||
-                positionIndex2.X + 1 == positionIndex1.X && positionIndex2.Y == positionIndex1.Y ||
-                positionIndex2.X + 1 == positionIndex1.X && positionIndex2.Y - 1 == positionIndex1.Y ||
-                positionIndex2.X - 1 == positionIndex1.X && positionIndex2.Y - 1 == positionIndex1.Y ||
-                positionIndex2.X == positionIndex1.X && positionIndex2.Y - 1 == positionIndex1.Y)
+            if (positionIndex1.X % 2 == 0)
+            {
+                if (positionIndex1.X - 1 == positionIndex2.X && positionIndex1.Y == positionIndex2.Y ||
+                    positionIndex1.X - 1 == positionIndex2.X && positionIndex1.Y + 1 == positionIndex2.Y ||
+                    positionIndex1.X == positionIndex2.X && positionIndex1.Y + 1 == positionIndex2.Y ||
+                    positionIndex1.X + 1 == positionIndex2.X && positionIndex1.Y + 1 == positionIndex2.Y ||
+                    positionIndex1.X + 1 == positionIndex2.X && positionIndex1.Y == positionIndex2.Y ||
+                    positionIndex1.X == positionIndex2.X && positionIndex1.Y - 1 == positionIndex2.Y)
+                {
+                    return true;
+                }
+                else return false;
+            }
+            else if (positionIndex1.X - 1 == positionIndex2.X && positionIndex1.Y - 1 == positionIndex2.Y ||
+                    positionIndex1.X - 1 == positionIndex2.X && positionIndex1.Y == positionIndex2.Y ||
+                    positionIndex1.X == positionIndex2.X && positionIndex1.Y + 1 == positionIndex2.Y ||
+                    positionIndex1.X + 1 == positionIndex2.X && positionIndex1.Y == positionIndex2.Y ||
+                    positionIndex1.X + 1 == positionIndex2.X && positionIndex1.Y - 1 == positionIndex2.Y ||
+                    positionIndex1.X == positionIndex2.X && positionIndex1.Y - 1 == positionIndex2.Y)
             {
                 return true;
             }
+            else return false;
 
-            return false;
         }
         public static void Update()
         {

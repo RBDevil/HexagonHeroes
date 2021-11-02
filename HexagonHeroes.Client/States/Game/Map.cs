@@ -34,7 +34,8 @@ namespace HexagonHeroes.Client.States.Game
             }
 
             HighlightTile(sb, moveIndicatorPosition);
-
+            HighlightTile(sb, GetHoveredTile());
+            
         }
 
         void HighlightTile(SpriteBatch sb, Point positionIndex)
@@ -76,16 +77,6 @@ namespace HexagonHeroes.Client.States.Game
             }
 
             if (closestTile.X - 1 < size.X && closestTile.X - 1 >= 0 &&
-                closestTile.Y - 1 < size.Y && closestTile.Y - 1 >= 0)
-            {
-                nextToCheck = new Point(closestTile.X - 1, closestTile.Y - 1);
-                if (CheckIfHovered(nextToCheck))
-                {
-                    return nextToCheck;
-                }
-            }
-
-            if (closestTile.X - 1 < size.X && closestTile.X - 1 >= 0 &&
                 closestTile.Y < size.Y && closestTile.Y >= 0)
             {
                 nextToCheck = new Point(closestTile.X - 1, closestTile.Y);
@@ -96,7 +87,7 @@ namespace HexagonHeroes.Client.States.Game
             }
 
             if (closestTile.X < size.X && closestTile.X >= 0 &&
-                closestTile.Y + 1 < size.Y && closestTile.Y + 1 >= 0)
+                closestTile.Y + 1 < size.Y && closestTile.Y + 1>= 0)
             {
                 nextToCheck = new Point(closestTile.X, closestTile.Y + 1);
                 if (CheckIfHovered(nextToCheck))
@@ -115,16 +106,6 @@ namespace HexagonHeroes.Client.States.Game
                 }
             }
 
-            if (closestTile.X + 1 < size.X && closestTile.X + 1 >= 0 &&
-                closestTile.Y - 1 < size.Y && closestTile.Y - 1 >= 0)
-            {
-                nextToCheck = new Point(closestTile.X + 1, closestTile.Y - 1);
-                if (CheckIfHovered(nextToCheck))
-                {
-                    return nextToCheck;
-                }
-            }
-
             if (closestTile.X < size.X && closestTile.X >= 0 &&
                 closestTile.Y - 1 < size.Y && closestTile.Y - 1 >= 0)
             {
@@ -132,6 +113,51 @@ namespace HexagonHeroes.Client.States.Game
                 if (CheckIfHovered(nextToCheck))
                 {
                     return nextToCheck;
+                }
+            }
+
+            if (closestTile.X % 2 == 0)
+            {
+                if (closestTile.X + 1 < size.X && closestTile.X + 1 >= 0 &&
+                    closestTile.Y + 1 < size.Y && closestTile.Y + 1 >= 0)
+                {
+                    nextToCheck = new Point(closestTile.X + 1, closestTile.Y + 1);
+                    if (CheckIfHovered(nextToCheck))
+                    {
+                        return nextToCheck;
+                    }
+                }
+
+                if (closestTile.X - 1 < size.X && closestTile.X - 1 >= 0 &&
+                    closestTile.Y + 1 < size.Y && closestTile.Y + 1 >= 0)
+                {
+                    nextToCheck = new Point(closestTile.X - 1, closestTile.Y + 1);
+                    if (CheckIfHovered(nextToCheck))
+                    {
+                        return nextToCheck;
+                    }
+                }
+            }
+            else
+            {
+                if (closestTile.X - 1 < size.X && closestTile.X - 1 >= 0 &&
+                    closestTile.Y - 1 < size.Y && closestTile.Y - 1 >= 0)
+                {
+                    nextToCheck = new Point(closestTile.X - 1, closestTile.Y - 1);
+                    if (CheckIfHovered(nextToCheck))
+                    {
+                        return nextToCheck;
+                    }
+                }
+
+                if (closestTile.X + 1 < size.X && closestTile.X + 1 >= 0 &&
+                    closestTile.Y - 1 < size.Y && closestTile.Y - 1 >= 0)
+                {
+                    nextToCheck = new Point(closestTile.X + 1, closestTile.Y - 1);
+                    if (CheckIfHovered(nextToCheck))
+                    {
+                        return nextToCheck;
+                    }
                 }
             }
 
