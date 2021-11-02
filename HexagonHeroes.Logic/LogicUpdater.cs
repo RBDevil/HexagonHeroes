@@ -26,22 +26,9 @@ namespace HexagonHeroes.Logic
         }
         void MovementInput(string playerID, int toX, int toY)
         {
-            bool isEmpty = true;
-            // check if to field is empty
-            foreach (Entity entity in entities)
-            {
-                if (entity.PositionX == toX && entity.PositionY == toY)
-                {
-                    isEmpty = false;
-                    break;
-                }
-            }
-            if (isEmpty)
-            {
-                Entity player = entities.Find(e => e.ID == playerID);
-                player.PositionX = toX;
-                player.PositionY = toY;
-            }
+            Entity player = entities.Find(e => e.ID == playerID);
+            player.PositionX = toX;
+            player.PositionY = toY;
         }
         public bool UpdateMoveIndicator(string ID, int toX, int toY)
         {
@@ -92,9 +79,43 @@ namespace HexagonHeroes.Logic
             {
                 if (entities[i].MoveIndicatorX != -1)
                 {
-                    MovementInput(entities[i].ID, entities[i].MoveIndicatorX, entities[i].MoveIndicatorY);
+                    bool isEmpty = true;
+                    // check if to field is empty
+                    foreach (Entity entity in entities)
+                    {
+                        if (entity.PositionX == entities[i].MoveIndicatorX && entity.PositionY == entities[i].MoveIndicatorY)
+                        {
+                            if (entity.FactionID != entities[i].FactionID)
+                            {
+                                DamageInput(entities[i], entity);
+                            }
+
+                            isEmpty = false;
+                            break;
+                        }
+                    }
+                    if (isEmpty)
+                    {
+                        MovementInput(entities[i].ID, entities[i].MoveIndicatorX, entities[i].MoveIndicatorY);
+                    }
                 }
             }
+        }
+        public int GetEntitiyHealth(string ID)
+        {
+            Entity entity = entities.Find(e => e.ID == ID);
+            if (entity != null)
+            {
+                return entity.Health;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+        private void DamageInput(Entity attacker, Entity reciever)
+        {
+            reciever.Health -= attacker.Damage;
         }
     }
 }

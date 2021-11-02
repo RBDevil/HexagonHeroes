@@ -163,13 +163,18 @@ namespace Networking
             {
                 foreach (var id in allIDs)
                 {
-					PositionPacket packet = new PositionPacket();
-					int[] playerPosition = logic.GetEntityPosition(id);
-					packet.entityID = id;
-					packet.X = playerPosition[0];
-					packet.Y = playerPosition[1];
-					SendPositionPacket(all, packet);
-                }
+                    PositionPacket positionPacket = new PositionPacket();
+                    int[] playerPosition = logic.GetEntityPosition(id);
+                    positionPacket.entityID = id;
+                    positionPacket.X = playerPosition[0];
+                    positionPacket.Y = playerPosition[1];
+                    SendPositionPacket(all, positionPacket);
+
+					HealthPacket healthPacket = new HealthPacket();
+					healthPacket.entityID = id;
+					healthPacket.Health = logic.GetEntitiyHealth(id);
+					SendHealthPacket(all, healthPacket);
+				}
             }
 
 		}
@@ -227,7 +232,12 @@ namespace Networking
 			packet.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
 		}
-
+		public void SendHealthPacket(List<NetConnection> all, HealthPacket packet)
+		{
+			NetOutgoingMessage outgoingMessage = server.CreateMessage();
+			packet.PacketToNetOutGoingMessage(outgoingMessage);
+			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
+		}
 		public void SendPlayerDisconnectPacket(List<NetConnection> all, PlayerDisconnectsPacket packet)
 		{
 			Logger.Info("Disconnecting for " + packet.player);

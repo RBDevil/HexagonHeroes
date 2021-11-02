@@ -13,9 +13,10 @@ namespace HexagonHeroes.Client.States.Game
         public Point PositionIndex { get; private set; }
         public Point MoveIndicator { get; set; }
         public Texture2D Texture { get; }
-        public int Health { get; private set; }
+        public int Health { get; set; }
         public int MaxHealth { get; private set; }
         public string FactionID { get; }
+        public int Damage { get; set; }
         public Entity(string ID, Point position, Texture2D texture, string factionID)
         {
             this.ID = ID;
@@ -25,6 +26,7 @@ namespace HexagonHeroes.Client.States.Game
             FactionID = factionID;
             MaxHealth = 100;
             Health = 90;
+            Damage = 15;
         }
 
         public void RegisterDamage(int damage)

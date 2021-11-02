@@ -10,6 +10,7 @@ namespace Packets
         SpawnPacket,
         CounterPacket,
         MoveIndicatorPacket,
+        HealthPacket,
     }
 
     public interface IPacket
@@ -23,7 +24,6 @@ namespace Packets
         public abstract void PacketToNetOutGoingMessage(NetOutgoingMessage message);
         public abstract void NetIncomingMessageToPacket(NetIncomingMessage message);
     }
-
     public class LocalPlayerPacket : Packet
     {
         public string ID { get; set; }
@@ -39,7 +39,6 @@ namespace Packets
             ID = message.ReadString();
         }
     }
-
     public class PlayerDisconnectsPacket : Packet
     {
         public string player { get; set; }
@@ -55,7 +54,6 @@ namespace Packets
             player = message.ReadString();
         }
     }
-
     public class PositionPacket : Packet
     {
         public float X { get; set; }
@@ -77,7 +75,6 @@ namespace Packets
             entityID = message.ReadString();
         }
     }
-
     public class SpawnPacket : Packet
     {
         public float X { get; set; }
@@ -98,7 +95,6 @@ namespace Packets
             entityID = message.ReadString();
         }
     }
-
     public class TimerPacket : Packet
     {
         public float Counter { get; set; }
@@ -114,7 +110,6 @@ namespace Packets
             message.Write(Counter);
         }
     }
-
     public class MoveIndicatorPacket : Packet
     {
         public float X;
@@ -134,6 +129,24 @@ namespace Packets
             message.Write(X);
             message.Write(Y);
             message.Write(playerID);
+        }
+    }
+    public class HealthPacket : Packet
+    {
+        public float Health { get; set; }
+        public string entityID { get; set; }
+
+        public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
+        {
+            message.Write((byte)PacketTypes.HealthPacket);
+            message.Write(Health);
+            message.Write(entityID);
+        }
+
+        public override void NetIncomingMessageToPacket(NetIncomingMessage message)
+        {
+            Health = message.ReadFloat();
+            entityID = message.ReadString();
         }
     }
 }

@@ -70,15 +70,24 @@ namespace HexagonHeroes.Client.States.Game
                     packet.NetIncomingMessageToPacket(message);
                     SetMoveIndicator((MoveIndicatorPacket)packet);
                     break;
+                case (int)PacketTypes.HealthPacket:
+                    packet = new HealthPacket();
+                    packet.NetIncomingMessageToPacket(message);
+                    SetEntityHealth((HealthPacket)packet);
+                    break;
             }
         }
 
+        static void SetEntityHealth(HealthPacket packet)
+        {
+            Entity player = entities.Find(e => e.ID == packet.entityID);
+            player.Health = (int)packet.Health;
+        }
         static void SetMoveIndicator(MoveIndicatorPacket packet)
         {
             Entity player = entities.Find(e => e.ID == packet.playerID);
             player.MoveIndicator = new Point((int)packet.X, (int)packet.Y);
         }
-
         static void SetTimer(TimerPacket packet)
         {
             countdown = (int)packet.Counter;

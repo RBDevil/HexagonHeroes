@@ -13,6 +13,7 @@ namespace HexagonHeroes.Logic
         public int MoveIndicatorY { get; set; }
         public int Health { get; set; }
         public string FactionID { get; }
+        public int Damage { get; set; }
         public Entity(string ID, int positionX, int positionY, string factionID)
         {
             this.ID = ID;
@@ -21,6 +22,8 @@ namespace HexagonHeroes.Logic
             MoveIndicatorX = -1;
             MoveIndicatorY = -1;
             FactionID = factionID;
+            Health = 100;
+            Damage = 10;
         }
     }
 }
