@@ -187,6 +187,8 @@ namespace Networking
             {
 				int[] entityPosition = logic.GetEntityPosition(id);
 				SendSpawnPacketToLocal(local, id, entityPosition[0], entityPosition[1]);
+				int entityHealth = logic.GetEntitiyHealth(id);
+				SendHealthPacket(new List<NetConnection> { local }, new HealthPacket() { entityID = id, Health = entityHealth });
             }
 
 			// Spawn the local player on all clients
@@ -195,6 +197,7 @@ namespace Networking
 			int Y = random.Next(0, 5);
 			SendSpawnPacketToAll(all, player, X, Y);
 			logic.AddPlayer(player, X, Y);
+			SendHealthPacket(new List<NetConnection> { local }, new HealthPacket() { entityID = player, Health = logic.GetEntitiyHealth(player) });
 		}
 
 		public void SendLocalPlayerPacket(NetConnection local, string player)

@@ -25,7 +25,6 @@ namespace HexagonHeroes.Client.States.Game
             MoveIndicator = new Point(-1, -1);
             FactionID = factionID;
             MaxHealth = 100;
-            Health = 90;
             Damage = 15;
         }
 
