@@ -80,12 +80,14 @@ namespace Packets
         public float X { get; set; }
         public float Y { get; set; }
         public string entityID { get; set; }
+        public string heroType { get; set; }
         public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
         {
             message.Write((byte)PacketTypes.SpawnPacket);
             message.Write(X);
             message.Write(Y);
             message.Write(entityID);
+            message.Write(heroType);
         }
 
         public override void NetIncomingMessageToPacket(NetIncomingMessage message)

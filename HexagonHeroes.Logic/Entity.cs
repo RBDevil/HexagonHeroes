@@ -6,6 +6,7 @@ namespace HexagonHeroes.Logic
 {
     class Entity
     {
+        public HeroTypes hero;
         public string ID { get; }
         public int PositionX {get; set; }
         public int PositionY { get; set; }

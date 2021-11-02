@@ -86,12 +86,14 @@ namespace Packets
         public float X { get; set; }
         public float Y { get; set; }
         public string playerID { get; set; }
+        public string heroType { get; set; }
         public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
         {
             message.Write((byte)PacketTypes.SpawnPacket);
             message.Write(X);
             message.Write(Y);
             message.Write(playerID);
+            message.Write(heroType);
         }
 
         public override void NetIncomingMessageToPacket(NetIncomingMessage message)
@@ -99,6 +101,7 @@ namespace Packets
             X = message.ReadFloat();
             Y = message.ReadFloat();
             playerID = message.ReadString();
+            heroType = message.ReadString();
         }
     }
     public class TimerPacket : Packet

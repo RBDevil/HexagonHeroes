@@ -11,6 +11,7 @@ namespace HexagonHeroes.Client.States.Menu
 {
     static class MenuState
     {
+        static HeroTypes choosenHero;
         static UI_Updater UI;
         static bool active;
         public static void Update()
@@ -20,11 +21,32 @@ namespace HexagonHeroes.Client.States.Menu
                 UI.Update();
             }
         }
-        public static void Draw(SpriteBatch sb)
+        public static void Draw(SpriteBatch sb, SpriteFont sf)
         {
             if (active)
             {
                 UI.Draw(sb);
+                string choosenHeroString;
+                switch (choosenHero)
+                {
+                    case HeroTypes.Tank:
+                        choosenHeroString = "Tank";
+                        break;
+                    case HeroTypes.Mage:
+                        choosenHeroString = "Mage";
+                        break;
+                    case HeroTypes.Support:
+                        choosenHeroString = "Support";
+                        break;
+                    case HeroTypes.Fighter:
+                        choosenHeroString = "Fighter";
+                        break;
+                    default:
+                        choosenHeroString = "Tank";
+                        break;
+                }
+
+                sb.DrawString(sf, choosenHeroString, new Vector2(270, 200), Color.Black);
             }
         }
         public static void Exit()
@@ -34,17 +56,36 @@ namespace HexagonHeroes.Client.States.Menu
         public static void Activate()
         {
             InitUI();
+            choosenHero = HeroTypes.Tank;
             active = true;
         }
         static void InitUI()
         {
             UI = new UI_Updater();
-            UI.AddButton(Textures.Container["button"], new Point(150, 200), PlayButtonAction);
+            UI.AddButton(Textures.Container["button"], new Point(200, 50), PlayButtonAction);
+            UI.AddButton(Textures.Container["button"], new Point(350, 200), NextHero);
+            UI.AddButton(Textures.Container["button"], new Point(150, 200), PreviousHero);
         }
         static void PlayButtonAction()
         {
             Exit();
-            GameState.Activate();
+            GameState.Activate(choosenHero);
+        }
+        static void NextHero()
+        {
+            choosenHero += 1;
+            if ((int)choosenHero > 4)
+            {
+                choosenHero = (HeroTypes)1;
+            }     
+        }
+        static void PreviousHero()
+        {
+            choosenHero -= 1;
+            if ((int)choosenHero < 1)
+            {
+                choosenHero = (HeroTypes)4;
+            }
         }
     }
 }

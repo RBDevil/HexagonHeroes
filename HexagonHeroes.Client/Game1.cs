@@ -11,6 +11,7 @@ namespace HexagonHeroes.Client
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private SpriteFont _spriteFont;
         
         public Game1()
         {
@@ -28,6 +29,7 @@ namespace HexagonHeroes.Client
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _spriteFont = Content.Load<SpriteFont>("spriteFont");
             Textures.LoadTextures(Content);
             Sounds.LoadSounds(Content);
             MenuState.Activate();
@@ -49,7 +51,7 @@ namespace HexagonHeroes.Client
 
             _spriteBatch.Begin();
             GameState.Draw(_spriteBatch);
-            MenuState.Draw(_spriteBatch);
+            MenuState.Draw(_spriteBatch, _spriteFont);
             _spriteBatch.End();
 
             base.Draw(gameTime);

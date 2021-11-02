@@ -22,7 +22,7 @@ namespace HexagonHeroes.Client.States.Game
         {
             active = false;
         }
-        public static void Activate()
+        public static void Activate(HeroTypes choosenHero)
         {
             entities = new List<Entity>();
 
