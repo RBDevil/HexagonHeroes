@@ -37,19 +37,20 @@ namespace Networking
         {
 			while (0 == 0)
 			{
-				Thread.Sleep(1000);
+				Thread.Sleep(1000);		
+				countDown--;
+
+				List<NetConnection> all = server.Connections;
+				if (all.Count > 0)
+				{
+					SendTimerToAll(all, countDown);
+				}
+
 				if (countDown == 0)
 				{
 					// apply turn cahnges
 					UpdateTurn();
 					countDown = 10;
-				}
-		
-				countDown--;
-				List<NetConnection> all = server.Connections;
-				if (all.Count > 0)
-				{
-					SendTimerToAll(all, countDown);
 				}
 
 				Logger.Info("Countdown: " + countDown.ToString());

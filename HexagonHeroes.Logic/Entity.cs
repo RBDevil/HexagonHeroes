@@ -11,6 +11,7 @@ namespace HexagonHeroes.Logic
         public int PositionY { get; set; }
         public int MoveIndicatorX { get; set; }
         public int MoveIndicatorY { get; set; }
+        public int Health { get; set; }
         public Entity(string ID, int positionX, int positionY)
         {
             this.ID = ID;

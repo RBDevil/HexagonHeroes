@@ -31,6 +31,8 @@ namespace HexagonHeroes.Client.Resources
             Container.Add("player", content.Load<Texture2D>("player"));
             Container.Add("move_indicator", content.Load<Texture2D>("move_indicator"));
             moveIndicatorOrigin = new Vector2(Container["move_indicator"].Width / 2, Container["move_indicator"].Height / 2);
+            Container.Add("healthbar_frame", content.Load<Texture2D>("healthbar_frame"));
+            Container.Add("percent_health", content.Load<Texture2D>("percent_health"));
         }
     }
 }
