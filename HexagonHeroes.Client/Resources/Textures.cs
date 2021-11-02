@@ -33,6 +33,7 @@ namespace HexagonHeroes.Client.Resources
             moveIndicatorOrigin = new Vector2(Container["move_indicator"].Width / 2, Container["move_indicator"].Height / 2);
             Container.Add("healthbar_frame", content.Load<Texture2D>("healthbar_frame"));
             Container.Add("percent_health", content.Load<Texture2D>("percent_health"));
+            Container.Add("button", content.Load<Texture2D>("button"));
         }
     }
 }

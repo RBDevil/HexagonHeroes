@@ -27,7 +27,7 @@ namespace HexagonHeroes.Client.States.Game
             entities = new List<Entity>();
 
             active = true;
-            client = new Networking.Client(14242, "127.0.0.1", "game");
+            client = new Networking.Client(14242, "188.142.219.78", "game");
             client._MessageRecived += ReceiveMessage;
             map = new Map(new Point(30, 10));
             countdown = 10;

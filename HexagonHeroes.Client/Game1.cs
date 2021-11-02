@@ -1,5 +1,6 @@
 ﻿using HexagonHeroes.Client.Resources;
 using HexagonHeroes.Client.States.Game;
+using HexagonHeroes.Client.States.Menu;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -28,7 +29,8 @@ namespace HexagonHeroes.Client
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Textures.LoadTextures(Content);
-            GameState.Activate();
+            Sounds.LoadSounds(Content);
+            MenuState.Activate();
         }
 
         protected override void Update(GameTime gameTime)
@@ -36,6 +38,7 @@ namespace HexagonHeroes.Client
             MouseManager.Update();
 
             GameState.Update();
+            MenuState.Update();
 
             base.Update(gameTime);
         }
@@ -46,6 +49,7 @@ namespace HexagonHeroes.Client
 
             _spriteBatch.Begin();
             GameState.Draw(_spriteBatch);
+            MenuState.Draw(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);
