@@ -15,8 +15,8 @@ namespace HexagonHeroes.Client.States.Game
         static Networking.Client client;
         static Map map;
         static string localPlayerID;
+        static Entity localPlayer;
         static List<Entity> entities;
-        static Point moveIndicator;
         static int countdown;
         public static void Exit()
         {
@@ -73,12 +73,12 @@ namespace HexagonHeroes.Client.States.Game
             if (countdown == 0)
             {
                 // send move input to sever
-                if (moveIndicator.X != -1 && moveIndicator.Y != -1)
+                if (localPlayer.MoveIndicator.X != -1 && localPlayer.MoveIndicator.Y != -1)
                 {
                     NetOutgoingMessage message = client.client.CreateMessage();
                     new PlayerInputPacket() { playerID = localPlayerID,
-                        X = moveIndicator.X,
-                        Y = moveIndicator.Y }
+                        X = localPlayer.MoveIndicator.X,
+                        Y = localPlayer.MoveIndicator.Y }
                     .PacketToNetOutGoingMessage(message);
                     client.client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
                     client.client.FlushSendQueue();
@@ -87,7 +87,12 @@ namespace HexagonHeroes.Client.States.Game
         }
         static void SpawnPlayer(SpawnPacket packet)
         {
-            entities.Add(new Entity(packet.playerID, new Point((int)packet.X, (int)packet.Y), Textures.Container["player"]));
+            Entity entity = new Entity(packet.playerID, new Point((int)packet.X, (int)packet.Y), Textures.Container["player"]);
+            entities.Add(entity);
+            if (localPlayer == null && packet.playerID == localPlayerID)
+            {
+                localPlayer = entity;
+            }
         }
         static void UpdatePlayerPosition(PositionPacket packet)
         {
@@ -107,19 +112,18 @@ namespace HexagonHeroes.Client.States.Game
             {
                 Point hoveredTile = map.GetHoveredTile();
                 // nullcheck basically
-                if (hoveredTile.X != -1 && hoveredTile.Y != -1)
+                if (hoveredTile.X != -1 && hoveredTile.Y != -1 && localPlayer != null)
                 {
-                    Point playerPosition = entities.Find(e => e.ID == localPlayerID).PositionIndex;
                     // check if the same position
-                    if (hoveredTile == playerPosition)
+                    if (hoveredTile == localPlayer.PositionIndex)
                     {
-                        moveIndicator = hoveredTile;
+                        localPlayer.MoveIndicator = hoveredTile;
                     }
                     // check if tile is adjacent to player position
                     {
-                        if (CheckIfAdjacent(playerPosition, hoveredTile))
+                        if (CheckIfAdjacent(localPlayer.PositionIndex, hoveredTile))
                         {
-                            moveIndicator = hoveredTile;
+                            localPlayer.MoveIndicator = hoveredTile;
                         }
                     }
                 }
@@ -163,7 +167,10 @@ namespace HexagonHeroes.Client.States.Game
         {
             if (active)
             {
-                map.Draw(sb, moveIndicator);
+                if (localPlayer != null)
+                {
+                    map.Draw(sb, localPlayer.MoveIndicator);
+                }
                 foreach (Entity entity in entities)
                 {
                     entity.Draw(sb);

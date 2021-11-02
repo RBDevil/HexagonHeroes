@@ -14,7 +14,10 @@ namespace HexagonHeroes.Logic
         public void DeletePlayer(string ID)
         {
             int[] position = GetEntityPosition(ID);
-            map.Array[position[0], position[1]] = null;
+            if (position[0] != -1)
+            {
+                map.Array[position[0], position[1]] = null;
+            }
         }
         public void AddPlayer(string ID, int positionX, int positionY)
         {

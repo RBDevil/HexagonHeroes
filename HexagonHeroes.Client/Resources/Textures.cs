@@ -19,6 +19,7 @@ namespace HexagonHeroes.Client.Resources
             new Point(17, 72),
             new Point(0, 35)
         };
+        public static Vector2 moveIndicatorOrigin { get; private set; }
         public static Dictionary<string, Texture2D> Container;
         public static void LoadTextures(ContentManager content)
         {
@@ -28,6 +29,8 @@ namespace HexagonHeroes.Client.Resources
             TileSize = Container["tile"].Width;
             Container.Add("tile_frame", content.Load<Texture2D>("tile_frame"));
             Container.Add("player", content.Load<Texture2D>("player"));
+            Container.Add("move_indicator", content.Load<Texture2D>("move_indicator"));
+            moveIndicatorOrigin = new Vector2(Container["move_indicator"].Width / 2, Container["move_indicator"].Height / 2);
         }
     }
 }
