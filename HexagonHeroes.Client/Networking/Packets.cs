@@ -11,7 +11,7 @@ namespace Packets
         PositionPacket,
         SpawnPacket,
         CounterPacket,
-        PlayerInputPacket,
+        MoveIndicatorPacket,
     }
 
     public interface IPacket
@@ -116,7 +116,7 @@ namespace Packets
         }
     }
 
-    public class PlayerInputPacket : Packet
+    public class MoveIndicatorPacket : Packet
     {
         public float X;
         public float Y;
@@ -131,7 +131,7 @@ namespace Packets
 
         public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
         {
-            message.Write((byte)PacketTypes.PlayerInputPacket);
+            message.Write((byte)PacketTypes.MoveIndicatorPacket);
             message.Write(X);
             message.Write(Y);
             message.Write(playerID);

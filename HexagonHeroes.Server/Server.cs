@@ -8,17 +8,10 @@ using HexagonHeroes.Logic;
 
 namespace Networking
 {
-	public class PlayerPosition
-	{
-		public float X { get; set; }
-		public float Y { get; set; }
-	}
-
 	public class Server
 	{
 		private NetServer server;
 		private Thread listenerThread, countDownThread;
-		private List<string> players;
 		private int countDown;
 		LogicUpdater logic;
 
@@ -26,7 +19,6 @@ namespace Networking
 		{
 			logic = new LogicUpdater();
 			countDown = 10;
-			players = new List<string>();
 
 			NetPeerConfiguration config = new NetPeerConfiguration("game");
 			config.MaximumConnections = 100;
@@ -48,6 +40,8 @@ namespace Networking
 				Thread.Sleep(1000);
 				if (countDown == 0)
 				{
+					// apply turn cahnges
+					UpdateTurn();
 					countDown = 10;
 				}
 		
@@ -89,9 +83,6 @@ namespace Networking
 							{
 								var player = NetUtility.ToHexString(message.SenderConnection.RemoteUniqueIdentifier);
 
-								//Add player to dictionary
-								players.Add(player);
-
 								//Send player their ID
 								SendLocalPlayerPacket(message.SenderConnection, player);
 
@@ -115,19 +106,16 @@ namespace Networking
 							switch (type)
 							{
 								case (byte)PacketTypes.PositionPacket:
-									packet = new PositionPacket();
-									packet.NetIncomingMessageToPacket(message);
-									SendPositionPacket(all, (PositionPacket)packet);
 									break;
 								case (byte)PacketTypes.PlayerDisconnectsPacket:
 									packet = new PlayerDisconnectsPacket();
 									packet.NetIncomingMessageToPacket(message);
 									SendPlayerDisconnectPacket(all, (PlayerDisconnectsPacket)packet);
 									break;
-								case (byte)PacketTypes.PlayerInputPacket:
-									packet = new PlayerInputPacket();
+								case (byte)PacketTypes.MoveIndicatorPacket:
+									packet = new MoveIndicatorPacket();
 									packet.NetIncomingMessageToPacket(message);
-									UpdateLogic((PlayerInputPacket)packet);
+									RegisterMoveIndicator((MoveIndicatorPacket)packet);
 									break;
 								default:
 									Logger.Error("Unhandled data / packet type: " + type);
@@ -152,19 +140,35 @@ namespace Networking
 			}
 		}
 
-        private void UpdateLogic(PlayerInputPacket packet)
-		{ 
-			logic.MovementInput(packet.playerID, (int)packet.X, (int)packet.Y);
+        private void RegisterMoveIndicator(MoveIndicatorPacket packet)
+		{
+			if (logic.UpdateMoveIndicator(packet.playerID, (int)packet.X, (int)packet.Y))
+			{
+				List<NetConnection> all = server.Connections;
+				if (all.Count > 0)
+				{
+					SendMoveIndicatorToAll(all, packet.playerID, packet.X, packet.Y);
+				}
+			}
+		}
+		private void UpdateTurn()
+        {
+			logic.UpdateTurn();
 			List<NetConnection> all = server.Connections;
 			if (all.Count > 0)
-			{
-				PositionPacket packetOut = new PositionPacket();
-				packetOut.player = packet.playerID;
-				int[] newPosition = logic.GetEntityPosition(packet.playerID);
-				packetOut.X = newPosition[0];
-				packetOut.Y = newPosition[1];
-				SendPositionPacket(all, packetOut);
-			}
+            {
+                foreach (var item in all)
+                {
+					PositionPacket packet = new PositionPacket();
+					string playerID = NetUtility.ToHexString(item.RemoteUniqueIdentifier);
+					int[] playerPosition = logic.GetEntityPosition(playerID);
+					packet.player = playerID;
+					packet.X = playerPosition[0];
+					packet.Y = playerPosition[1];
+					SendPositionPacket(all, packet);
+                }
+            }
+
 		}
 
         public void SpawnPlayers(List<NetConnection> all, NetConnection local, string player)
@@ -227,7 +231,6 @@ namespace Networking
 		{
 			Logger.Info("Disconnecting for " + packet.player);
 
-			players.Remove(packet.player);
 			logic.DeletePlayer(packet.player);
 
 			if (all.Count > 0)
@@ -242,6 +245,14 @@ namespace Networking
         {
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
 			new TimerPacket() { Counter = counter }.PacketToNetOutGoingMessage(outgoingMessage);
+			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
+		}
+		public void SendMoveIndicatorToAll(List<NetConnection> all, string player, float X, float Y)
+		{
+			Logger.Info("Sending user move indicator for player " + player);
+
+			NetOutgoingMessage outgoingMessage = server.CreateMessage();
+			new MoveIndicatorPacket() { playerID = player, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
 		}
 	}

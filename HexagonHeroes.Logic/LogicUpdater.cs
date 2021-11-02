@@ -6,48 +6,80 @@ namespace HexagonHeroes.Logic
 {
     public class LogicUpdater
     {
-        Map map;
+        List<Entity> entities;
         public LogicUpdater()
         {
-            map = new Map(30, 10);
+            entities = new List<Entity>();
         }
         public void DeletePlayer(string ID)
         {
-            int[] position = GetEntityPosition(ID);
-            if (position[0] != -1)
-            {
-                map.Array[position[0], position[1]] = null;
-            }
+            entities.Remove(entities.Find(e => e.ID == ID));
         }
         public void AddPlayer(string ID, int positionX, int positionY)
         {
-            map.Array[positionX, positionY] = new Entity(ID);
+            entities.Add(new Entity(ID, positionX, positionY));
         }
-        public void MovementInput(string playerID, int toX, int toY)
+        void MovementInput(string playerID, int toX, int toY)
         {
-            int[] entityPosition = GetEntityPosition(playerID);
+            bool isEmpty = true;
             // check if to field is empty
-            if (toX != -1 && toY != -1 && map.Array[toX, toY] == null)
+            foreach (Entity entity in entities)
             {
-                map.Array[toX, toY] = map.Array[entityPosition[0], entityPosition[1]];
-                map.Array[entityPosition[0], entityPosition[1]] = null;
-            }
-        }
-
-        public int[] GetEntityPosition(string ID)
-        {
-            for (int i = 0; i < map.Array.GetLength(0); i++)
-            {
-                for (int j = 0; j < map.Array.GetLength(1); j++)
+                if (entity.PositionX == toX && entity.PositionY == toY)
                 {
-                    if (map.Array[i,j]?.ID == ID)
-                    {
-                        return new int[] { i, j };
-                    }
+                    isEmpty = false;
+                    break;
                 }
             }
+            if (isEmpty)
+            {
+                Entity player = entities.Find(e => e.ID == playerID);
+                player.PositionX = toX;
+                player.PositionY = toY;
+            }
+        }
+        public bool UpdateMoveIndicator(string ID, int toX, int toY)
+        {
+            // check if no other indicator points here
+            bool isEmpty = true;
+            foreach (var item in entities)
+            {
+                if(item.MoveIndicatorX == toX && item.MoveIndicatorY == toY)
+                {
+                    isEmpty = false;
+                    break;
+                }
+            }
+            if (isEmpty)
+            {
+                Entity player = entities.Find(e => e.ID == ID);
+                player.MoveIndicatorX = toX;
+                player.MoveIndicatorY = toY;
+            }
 
-            return new int[] { -1, -1 };
+            return isEmpty;
+        }
+        public int[] GetEntityPosition(string ID)
+        {
+            Entity entity = entities.Find(e => e.ID == ID);
+            if (entity != null)
+            {
+                return new int[] { entity.PositionX, entity.PositionY };
+            }
+            else
+            {
+                return new int[] { -1, -1 };
+            }
+        }
+        public void UpdateTurn()
+        {
+            for (int i = 0; i < entities.Count; i++)
+            {
+                if (entities[i].MoveIndicatorX != -1)
+                {
+                    MovementInput(entities[i].ID, entities[i].MoveIndicatorX, entities[i].MoveIndicatorY);
+                }
+            }
         }
     }
 }

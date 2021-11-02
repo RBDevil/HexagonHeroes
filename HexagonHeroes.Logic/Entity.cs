@@ -7,10 +7,17 @@ namespace HexagonHeroes.Logic
     class Entity
     {
         public string ID { get; }
-
-        public Entity(string ID)
+        public int PositionX {get; set; }
+        public int PositionY { get; set; }
+        public int MoveIndicatorX { get; set; }
+        public int MoveIndicatorY { get; set; }
+        public Entity(string ID, int positionX, int positionY)
         {
             this.ID = ID;
+            PositionX = positionX;
+            PositionY = positionY;
+            MoveIndicatorX = -1;
+            MoveIndicatorY = -1;
         }
     }
 }

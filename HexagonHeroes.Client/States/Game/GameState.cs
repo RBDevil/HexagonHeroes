@@ -65,25 +65,23 @@ namespace HexagonHeroes.Client.States.Game
                     packet.NetIncomingMessageToPacket(message);
                     SetTimer((TimerPacket)packet);
                     break;
+                case (int)PacketTypes.MoveIndicatorPacket:
+                    packet = new MoveIndicatorPacket();
+                    packet.NetIncomingMessageToPacket(message);
+                    SetMoveIndicator((MoveIndicatorPacket)packet);
+                    break;
             }
         }
-        private static void SetTimer(TimerPacket packet)
+
+        static void SetMoveIndicator(MoveIndicatorPacket packet)
+        {
+            Entity player = entities.Find(e => e.ID == packet.playerID);
+            player.MoveIndicator = new Point((int)packet.X, (int)packet.Y);
+        }
+
+        static void SetTimer(TimerPacket packet)
         {
             countdown = (int)packet.Counter;
-            if (countdown == 0)
-            {
-                // send move input to sever
-                if (localPlayer.MoveIndicator.X != -1 && localPlayer.MoveIndicator.Y != -1)
-                {
-                    NetOutgoingMessage message = client.client.CreateMessage();
-                    new PlayerInputPacket() { playerID = localPlayerID,
-                        X = localPlayer.MoveIndicator.X,
-                        Y = localPlayer.MoveIndicator.Y }
-                    .PacketToNetOutGoingMessage(message);
-                    client.client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
-                    client.client.FlushSendQueue();
-                }
-            }
         }
         static void SpawnPlayer(SpawnPacket packet)
         {
@@ -114,16 +112,35 @@ namespace HexagonHeroes.Client.States.Game
                 // nullcheck basically
                 if (hoveredTile.X != -1 && hoveredTile.Y != -1 && localPlayer != null)
                 {
+                    NetOutgoingMessage message = client.client.CreateMessage();
                     // check if the same position
                     if (hoveredTile == localPlayer.PositionIndex)
                     {
-                        localPlayer.MoveIndicator = hoveredTile;
+                        // send to sever
+                        new MoveIndicatorPacket() 
+                        { playerID = localPlayerID, 
+                            X = hoveredTile.X,
+                            Y = hoveredTile.Y }
+                        .PacketToNetOutGoingMessage(message);
+
+                        client.client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+                        client.client.FlushSendQueue();
                     }
                     // check if tile is adjacent to player position
                     {
                         if (CheckIfAdjacent(localPlayer.PositionIndex, hoveredTile))
                         {
-                            localPlayer.MoveIndicator = hoveredTile;
+                            // send to sever
+                            new MoveIndicatorPacket()
+                            {
+                                playerID = localPlayerID,
+                                X = hoveredTile.X,
+                                Y = hoveredTile.Y
+                            }
+                            .PacketToNetOutGoingMessage(message);
+
+                            client.client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+                            client.client.FlushSendQueue();
                         }
                     }
                 }
