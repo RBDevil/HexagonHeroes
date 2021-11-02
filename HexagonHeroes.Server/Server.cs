@@ -98,6 +98,12 @@ namespace Networking
 								// Send Use Spawn Message
 								SpawnPlayers(all, message.SenderConnection, player);
 							}
+							else if (status == NetConnectionStatus.Disconnected)
+                            {
+								PlayerDisconnectsPacket disconnectPacket = new PlayerDisconnectsPacket();
+								disconnectPacket.player = NetUtility.ToHexString(message.SenderConnection.RemoteUniqueIdentifier);
+								SendPlayerDisconnectPacket(all , disconnectPacket);
+							}
 							break;
 						case NetIncomingMessageType.Data:
 							// Get packet type
@@ -157,7 +163,7 @@ namespace Networking
 				int[] newPosition = logic.GetEntityPosition(packet.playerID);
 				packetOut.X = newPosition[0];
 				packetOut.Y = newPosition[1];
-				SendPositionPacket(all, (PositionPacket)packetOut);
+				SendPositionPacket(all, packetOut);
 			}
 		}
 
@@ -224,9 +230,12 @@ namespace Networking
 			players.Remove(packet.player);
 			logic.DeletePlayer(packet.player);
 
-			NetOutgoingMessage outgoingMessage = server.CreateMessage();
-			packet.PacketToNetOutGoingMessage(outgoingMessage);
-			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
+			if (all.Count > 0)
+			{
+				NetOutgoingMessage outgoingMessage = server.CreateMessage();
+				packet.PacketToNetOutGoingMessage(outgoingMessage);
+				server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
+			}
 		}
 
 		public void SendTimerToAll(List<NetConnection> all, int counter)
