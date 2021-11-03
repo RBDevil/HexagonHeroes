@@ -28,12 +28,16 @@ namespace HexagonHeroes.Client.Resources
             Container.Add("tile", content.Load<Texture2D>("tile"));
             TileSize = Container["tile"].Width;
             Container.Add("tile_frame", content.Load<Texture2D>("tile_frame"));
-            Container.Add("player", content.Load<Texture2D>("player"));
             Container.Add("move_indicator", content.Load<Texture2D>("move_indicator"));
             moveIndicatorOrigin = new Vector2(Container["move_indicator"].Width / 2, Container["move_indicator"].Height / 2);
             Container.Add("healthbar_frame", content.Load<Texture2D>("healthbar_frame"));
             Container.Add("percent_health", content.Load<Texture2D>("percent_health"));
             Container.Add("button", content.Load<Texture2D>("button"));
+            Container.Add("default_entity", content.Load<Texture2D>("default_entity"));
+            Container.Add("tank", content.Load<Texture2D>("tank"));
+            Container.Add("mage", content.Load<Texture2D>("mage"));
+            Container.Add("support", content.Load<Texture2D>("support"));
+            Container.Add("fighter", content.Load<Texture2D>("fighter"));
         }
     }
 }

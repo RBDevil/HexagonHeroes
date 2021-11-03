@@ -1,5 +1,6 @@
 ﻿using HexagonHeroes.Client.Resources;
 using HexagonHeroes.Client.States.Game;
+using HexagonHeroes.Client.States.Game.Heores;
 using HexagonHeroes.Client.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

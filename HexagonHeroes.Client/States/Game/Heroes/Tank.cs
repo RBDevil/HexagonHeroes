@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HexagonHeroes.Client.States.Game
+namespace HexagonHeroes.Client.States.Game.Heores
 {
     public enum HeroTypes
     {
@@ -14,12 +14,11 @@ namespace HexagonHeroes.Client.States.Game
         Support,
         Fighter,
     }
-    class Hero : Entity
+    class Tank : Entity
     {
-        public HeroTypes HeroType;
-        public Hero(string ID, Point position, Texture2D texture, string factionID, HeroTypes heroType) : base(ID, position, texture, factionID)
+        public Tank(string ID, Point position, Texture2D texture, string factionID) 
+            : base(ID, position, texture, factionID)
         {
-            HeroType = heroType;
         }
     }
 }

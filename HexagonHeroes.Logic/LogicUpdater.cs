@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HexagonHeroes.Logic.Heroes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -20,9 +21,26 @@ namespace HexagonHeroes.Logic
         {
             entities.Add(new Entity(ID, positionX, positionY, "enemies"));
         }
-        public void AddPlayer(string ID, int positionX, int positionY)
+        public void AddEntity(string ID, int positionX, int positionY, string factionID, string heroType = "Not a hero")
         {
-            entities.Add(new Entity(ID, positionX, positionY, "players"));
+            switch (heroType)
+            {
+                case "tank":
+                    entities.Add(new Tank(ID, positionX, positionY, factionID));
+                    break;
+                case "mage":
+                    entities.Add(new Tank(ID, positionX, positionY, factionID));
+                    break;
+                case "support":
+                    entities.Add(new Tank(ID, positionX, positionY, factionID));
+                    break;
+                case "fighter":
+                    entities.Add(new Tank(ID, positionX, positionY, factionID));
+                    break;
+                case "Not a hero":
+                    entities.Add(new Entity(ID, positionX, positionY, factionID));
+                    break;
+            }            
         }
         void MovementInput(string playerID, int toX, int toY)
         {
@@ -113,9 +131,23 @@ namespace HexagonHeroes.Logic
                 return -1;
             }
         }
-        private void DamageInput(Entity attacker, Entity reciever)
+        void DamageInput(Entity attacker, Entity reciever)
         {
             reciever.Health -= attacker.Damage;
+        }
+        public string GetHeroType(string ID)
+        {
+            Entity entity = entities.Find(e => e.ID == ID);
+            if (entity is Tank)
+            {
+                return "tank";
+            }
+
+            return "Not a hero";
+        }
+        public string GetEntityFaction(string ID)
+        {
+            return entities.Find(e => e.ID == ID).FactionID;
         }
     }
 }

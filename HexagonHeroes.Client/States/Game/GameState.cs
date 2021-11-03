@@ -1,4 +1,5 @@
 ﻿using HexagonHeroes.Client.Resources;
+using HexagonHeroes.Client.States.Game.Heores;
 using Lidgren.Network;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,11 +19,12 @@ namespace HexagonHeroes.Client.States.Game
         static Entity localPlayer;
         static List<Entity> entities;
         static int countdown;
+        static HeroTypes chosenHero;
         public static void Exit()
         {
             active = false;
         }
-        public static void Activate(HeroTypes choosenHero)
+        public static void Activate(HeroTypes chosenHero)
         {
             entities = new List<Entity>();
 
@@ -31,6 +33,7 @@ namespace HexagonHeroes.Client.States.Game
             client._MessageRecived += ReceiveMessage;
             map = new Map(new Point(30, 10));
             countdown = 10;
+            GameState.chosenHero = chosenHero;
         }
         public static void ReceiveMessage(NetIncomingMessage message)
         {
@@ -44,6 +47,12 @@ namespace HexagonHeroes.Client.States.Game
                     packet = new LocalPlayerPacket();
                     packet.NetIncomingMessageToPacket(message);
                     ExtractLocalPlayerInformation((LocalPlayerPacket)packet);
+                    // send chosen hero type
+                    NetOutgoingMessage messageOut = client.client.CreateMessage();
+                    new ChosenHeroPacket { entityID = localPlayerID, heroType = chosenHero.ToString().ToLower() }
+                    .PacketToNetOutGoingMessage(messageOut);
+                    client.client.SendMessage(messageOut, NetDeliveryMethod.ReliableOrdered);
+                    client.client.FlushSendQueue();
                     break;
                 case (int)PacketTypes.PlayerDisconnectsPacket:
                     packet = new PlayerDisconnectsPacket();
@@ -58,7 +67,7 @@ namespace HexagonHeroes.Client.States.Game
                 case (int)PacketTypes.SpawnPacket:
                     packet = new SpawnPacket();
                     packet.NetIncomingMessageToPacket(message);
-                    SpawnPlayer((SpawnPacket)packet);
+                    SpawnEntity((SpawnPacket)packet);
                     break;
                 case (int)PacketTypes.CounterPacket:
                     packet = new TimerPacket();
@@ -77,7 +86,6 @@ namespace HexagonHeroes.Client.States.Game
                     break;
             }
         }
-
         static void SetEntityHealth(HealthPacket packet)
         {
             Entity player = entities.Find(e => e.ID == packet.entityID);
@@ -92,13 +100,80 @@ namespace HexagonHeroes.Client.States.Game
         {
             countdown = (int)packet.Counter;
         }
-        static void SpawnPlayer(SpawnPacket packet)
+        static void SpawnEntity(SpawnPacket packet)
         {
-            Entity entity = new Entity(packet.playerID, new Point((int)packet.X, (int)packet.Y), Textures.Container["player"], "players");
-            entities.Add(entity);
-            if (localPlayer == null && packet.playerID == localPlayerID)
+            switch (packet.heroType)
             {
-                localPlayer = entity;
+                case "tank":
+                    Tank tank = new Tank(
+                            packet.playerID,
+                            new Point((int)packet.X, (int)packet.Y),
+                            Textures.Container["tank"],
+                            packet.factionID);
+                    
+                    entities.Add(tank);
+
+                    if (localPlayer == null && packet.playerID == localPlayerID)
+                    {
+                        localPlayer = tank;
+                    }
+                    break;
+                case "mage":
+                    Tank mage = new Tank(
+                        packet.playerID,
+                        new Point((int)packet.X, (int)packet.Y),
+                        Textures.Container["mage"],
+                        packet.factionID);
+
+                    entities.Add(mage);
+
+                    if (localPlayer == null && packet.playerID == localPlayerID)
+                    {
+                        localPlayer = mage;
+                    }
+                    break;
+                case "support":
+                    Tank support = new Tank(
+                        packet.playerID,
+                        new Point((int)packet.X, (int)packet.Y),
+                        Textures.Container["support"],
+                        packet.factionID);
+
+                    entities.Add(support);
+
+                    if (localPlayer == null && packet.playerID == localPlayerID)
+                    {
+                        localPlayer = support;
+                    }
+                    break;
+                case "fighter":
+                    Tank fighter = new Tank(
+                        packet.playerID,
+                        new Point((int)packet.X, (int)packet.Y),
+                        Textures.Container["fighter"],
+                        packet.factionID);
+
+                    entities.Add(fighter);
+
+                    if (localPlayer == null && packet.playerID == localPlayerID)
+                    {
+                        localPlayer = fighter;
+                    }
+                    break;
+                default:
+                    Entity entity = new Entity(
+                            packet.playerID,
+                            new Point((int)packet.X, (int)packet.Y),
+                            Textures.Container["default_entity"],
+                            packet.factionID);
+
+                    entities.Add(entity);
+
+                    if (localPlayer == null && packet.playerID == localPlayerID)
+                    {
+                        localPlayer = entity;
+                    }
+                    break;
             }
         }
         static void UpdatePlayerPosition(PositionPacket packet)

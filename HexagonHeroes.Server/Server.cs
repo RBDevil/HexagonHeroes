@@ -86,9 +86,6 @@ namespace Networking
 
 								//Send player their ID
 								SendLocalPlayerPacket(message.SenderConnection, player);
-
-								// Send Use Spawn Message
-								SpawnAllEntities(all, message.SenderConnection, player);
 							}
 							else if (status == NetConnectionStatus.Disconnected)
                             {
@@ -106,7 +103,12 @@ namespace Networking
 
 							switch (type)
 							{
-								case (byte)PacketTypes.PositionPacket:
+								case (byte)PacketTypes.ChosenHeroPacket:
+									packet = new ChosenHeroPacket();
+									packet.NetIncomingMessageToPacket(message);
+									// send back spawn packages
+									string local = NetUtility.ToHexString(message.SenderConnection.RemoteUniqueIdentifier);
+									SpawnAllEntities(all, message.SenderConnection, local, (ChosenHeroPacket)packet);				
 									break;
 								case (byte)PacketTypes.PlayerDisconnectsPacket:
 									packet = new PlayerDisconnectsPacket();
@@ -140,7 +142,6 @@ namespace Networking
 				}
 			}
 		}
-
         private void RegisterMoveIndicator(MoveIndicatorPacket packet)
 		{
 			if (logic.UpdateMoveIndicator(packet.playerID, (int)packet.X, (int)packet.Y))
@@ -178,15 +179,14 @@ namespace Networking
             }
 
 		}
-
-        public void SpawnAllEntities(List<NetConnection> all, NetConnection local, string player)
+        public void SpawnAllEntities(List<NetConnection> all, NetConnection local, string player, ChosenHeroPacket packet)
 		{
 			// Spawn all the entities on the local player
 			List<string> allIds = logic.GetAllEntityIDs();
             foreach (var id in allIds)
             {
 				int[] entityPosition = logic.GetEntityPosition(id);
-				SendSpawnPacketToLocal(local, id, entityPosition[0], entityPosition[1]);
+				SendSpawnPacketToLocal(local, id, entityPosition[0], entityPosition[1], logic.GetHeroType(id), logic.GetEntityFaction(id));
 				int entityHealth = logic.GetEntitiyHealth(id);
 				SendHealthPacket(new List<NetConnection> { local }, new HealthPacket() { entityID = id, Health = entityHealth });
             }
@@ -195,11 +195,10 @@ namespace Networking
 			Random random = new Random();
 			int X = random.Next(0, 5);
 			int Y = random.Next(0, 5);
-			SendSpawnPacketToAll(all, player, X, Y);
-			logic.AddPlayer(player, X, Y);
-			SendHealthPacket(new List<NetConnection> { local }, new HealthPacket() { entityID = player, Health = logic.GetEntitiyHealth(player) });
+			SendSpawnPacketToAll(all, player, X, Y, packet.heroType, "players");
+			logic.AddEntity(player, X, Y, "players", packet.heroType);
+			SendHealthPacket(all, new HealthPacket() { entityID = player, Health = logic.GetEntitiyHealth(player) });
 		}
-
 		public void SendLocalPlayerPacket(NetConnection local, string player)
 		{
 			Logger.Info("Sending player their user ID: " + player);
@@ -208,25 +207,34 @@ namespace Networking
 			new LocalPlayerPacket() { ID = player }.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, local, NetDeliveryMethod.ReliableOrdered, 0);
 		}
-
-		public void SendSpawnPacketToLocal(NetConnection local, string entityID, float X, float Y)
+		public void SendSpawnPacketToLocal(NetConnection local, string entityID, float X, float Y, string heroType, string factionID)
 		{
 			Logger.Info("Sending user spawn message for player " + entityID);
 
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
-			new SpawnPacket() { entityID = entityID, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
+			new SpawnPacket() {	
+				entityID = entityID, 
+				X = X, Y = Y , 
+				heroType = heroType, 
+				factionID = factionID
+			}.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, local, NetDeliveryMethod.ReliableOrdered, 0);
 		}
-
-		public void SendSpawnPacketToAll(List<NetConnection> all, string player, float X, float Y)
+		public void SendSpawnPacketToAll(List<NetConnection> all, string player, float X, float Y, string heroType, string factionID)
 		{
 			Logger.Info("Sending user spawn message for player " + player);
 
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();
-			new SpawnPacket() { entityID = player, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
+			new SpawnPacket()
+			{
+				entityID = player,
+				X = X,
+				Y = Y,
+				heroType = heroType,
+				factionID = factionID
+			}.PacketToNetOutGoingMessage(outgoingMessage);
 			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
 		}
-
 		public void SendPositionPacket(List<NetConnection> all, PositionPacket packet)
 		{
 			Logger.Info("Sending position for " + packet.entityID);
@@ -254,7 +262,6 @@ namespace Networking
 				server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
 			}
 		}
-
 		public void SendTimerToAll(List<NetConnection> all, int counter)
         {
 			NetOutgoingMessage outgoingMessage = server.CreateMessage();

@@ -13,6 +13,7 @@ namespace Packets
         CounterPacket,
         MoveIndicatorPacket,
         HealthPacket,
+        ChosenHeroPacket,
     }
 
     public interface IPacket
@@ -87,6 +88,7 @@ namespace Packets
         public float Y { get; set; }
         public string playerID { get; set; }
         public string heroType { get; set; }
+        public string factionID { get; set; }
         public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
         {
             message.Write((byte)PacketTypes.SpawnPacket);
@@ -94,6 +96,7 @@ namespace Packets
             message.Write(Y);
             message.Write(playerID);
             message.Write(heroType);
+            message.Write(factionID);
         }
 
         public override void NetIncomingMessageToPacket(NetIncomingMessage message)
@@ -102,6 +105,7 @@ namespace Packets
             Y = message.ReadFloat();
             playerID = message.ReadString();
             heroType = message.ReadString();
+            factionID = message.ReadString();
         }
     }
     public class TimerPacket : Packet
@@ -155,6 +159,24 @@ namespace Packets
         public override void NetIncomingMessageToPacket(NetIncomingMessage message)
         {
             Health = message.ReadFloat();
+            entityID = message.ReadString();
+        }
+    }
+    public class ChosenHeroPacket : Packet
+    {
+        public string heroType { get; set; }
+        public string entityID { get; set; }
+
+        public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
+        {
+            message.Write((byte)PacketTypes.ChosenHeroPacket);
+            message.Write(heroType);
+            message.Write(entityID);
+        }
+
+        public override void NetIncomingMessageToPacket(NetIncomingMessage message)
+        {
+            heroType = message.ReadString();
             entityID = message.ReadString();
         }
     }

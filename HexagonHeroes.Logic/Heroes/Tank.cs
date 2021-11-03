@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HexagonHeroes.Logic
+namespace HexagonHeroes.Logic.Heroes
 {
     public enum HeroTypes
     {
@@ -11,14 +11,11 @@ namespace HexagonHeroes.Logic
         Support,
         Fighter,
     }
-    class Hero : Entity
+    class Tank : Entity
     {
-        public HeroTypes HeroType;
-        public Hero(string ID, int positionX, int positionY, string factionID, HeroTypes heroType) 
+        public Tank(string ID, int positionX, int positionY, string factionID) 
             : base(ID, positionX, positionY, factionID)
-        {
-            HeroType = heroType;
+        {           
         }
-
     }
 }

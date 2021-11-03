@@ -12,7 +12,7 @@ namespace HexagonHeroes.Client.States.Game
         public string ID { get; }
         public Point PositionIndex { get; private set; }
         public Point MoveIndicator { get; set; }
-        public Texture2D Texture { get; }
+        public Texture2D Texture { get; set; }
         public int Health { get; set; }
         public int MaxHealth { get; private set; }
         public string FactionID { get; }
@@ -21,9 +21,9 @@ namespace HexagonHeroes.Client.States.Game
         {
             this.ID = ID;
             PositionIndex = position;
-            Texture = texture;
             MoveIndicator = new Point(-1, -1);
             FactionID = factionID;
+            Texture = texture;
             MaxHealth = 100;
             Damage = 15;
         }
@@ -71,7 +71,6 @@ namespace HexagonHeroes.Client.States.Game
 
             DrawHealthBar(sb, tileMiddlePosition);
         }
-
         void DrawHealthBar(SpriteBatch sb, Vector2 tileMiddlePosition)
         {
             Vector2 offset = new Vector2(-25, -15);
@@ -92,7 +91,6 @@ namespace HexagonHeroes.Client.States.Game
                 sb.Draw(Textures.Container["percent_health"], tileMiddlePosition + offset, Color.White);
             }
         }
-
         void DrawMoveIndicator(SpriteBatch sb, Vector2 tileMiddlePosition)
         {    
             if (PositionIndex.X % 2 == 0)
