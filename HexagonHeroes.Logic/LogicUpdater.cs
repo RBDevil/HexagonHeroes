@@ -29,13 +29,13 @@ namespace HexagonHeroes.Logic
                     entities.Add(new Tank(ID, positionX, positionY, factionID));
                     break;
                 case "mage":
-                    entities.Add(new Tank(ID, positionX, positionY, factionID));
+                    entities.Add(new Mage(ID, positionX, positionY, factionID));
                     break;
                 case "support":
-                    entities.Add(new Tank(ID, positionX, positionY, factionID));
+                    entities.Add(new Support(ID, positionX, positionY, factionID));
                     break;
                 case "fighter":
-                    entities.Add(new Tank(ID, positionX, positionY, factionID));
+                    entities.Add(new Fighter(ID, positionX, positionY, factionID));
                     break;
                 case "Not a hero":
                     entities.Add(new Entity(ID, positionX, positionY, factionID));
@@ -105,7 +105,7 @@ namespace HexagonHeroes.Logic
                         {
                             if (entity.FactionID != entities[i].FactionID)
                             {
-                                DamageInput(entities[i], entity);
+                                BasicAttackInput(entities[i], entity);
                             }
 
                             isEmpty = false;
@@ -131,16 +131,29 @@ namespace HexagonHeroes.Logic
                 return -1;
             }
         }
-        void DamageInput(Entity attacker, Entity reciever)
+        void BasicAttackInput(Entity attacker, Entity reciever)
         {
             reciever.Health -= attacker.Damage;
         }
         public string GetHeroType(string ID)
         {
             Entity entity = entities.Find(e => e.ID == ID);
+
             if (entity is Tank)
             {
                 return "tank";
+            }
+            else if (entity is Mage)
+            {
+                return "mage";
+            }
+            else if (entity is Support)
+            {
+                return "support";
+            }
+            else if (entity is Fighter)
+            {
+                return "fighter";
             }
 
             return "Not a hero";
@@ -149,5 +162,45 @@ namespace HexagonHeroes.Logic
         {
             return entities.Find(e => e.ID == ID).FactionID;
         }
+        void SupportSpell1(Entity caster)
+        {
+            caster.Health += 15;
+            int [] casterPosition = GetEntityPosition(caster.ID);
+            List<int[]> adjacentTiles = GetAdjacentTiles(casterPosition[0], casterPosition[1]);
+            foreach (var entity in entities)
+            {
+                int[] entityPosition = GetEntityPosition(entity.ID);
+                foreach (var tile in adjacentTiles)
+                {
+                    if (entityPosition[0] == tile[0] && entityPosition[1] == tile[1] &&
+                        caster.FactionID == entity.FactionID)
+                    {
+                        entity.Health += 15;
+                    }
+                }
+            }
+        }
+        List<int[]> GetAdjacentTiles(int positionX, int positionY)
+        {
+            List<int[]> adjacentTiles = new List<int[]>();
+
+            adjacentTiles.Add(new int[] { positionX - 1, positionY });
+            adjacentTiles.Add(new int[] { positionX, positionY + 1 });
+            adjacentTiles.Add(new int[] { positionX + 1, positionY });
+            adjacentTiles.Add(new int[] { positionX, positionY - 1 });
+
+            if (positionX % 2 == 0)
+            {
+                adjacentTiles.Add(new int[] { positionX + 1, positionY + 1 });
+                adjacentTiles.Add(new int[] { positionX - 1, positionY + 1 });
+            }
+            else
+            {
+                adjacentTiles.Add(new int[] { positionX + 1, positionY - 1 });
+                adjacentTiles.Add(new int[] { positionX - 1, positionY - 1 });
+            }
+
+            return adjacentTiles;
+        }       
     }
 }

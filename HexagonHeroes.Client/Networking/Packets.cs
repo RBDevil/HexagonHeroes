@@ -14,6 +14,7 @@ namespace Packets
         MoveIndicatorPacket,
         HealthPacket,
         ChosenHeroPacket,
+        UsingSpellPacket,
     }
 
     public interface IPacket
@@ -178,6 +179,24 @@ namespace Packets
         {
             heroType = message.ReadString();
             entityID = message.ReadString();
+        }
+    }
+    public class UsingSpellPacket : Packet
+    {
+        public string entityID { get; set; }
+        public float spellID { get; set; }
+
+        public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
+        {
+            message.Write((byte)PacketTypes.UsingSpellPacket);
+            message.Write(entityID);
+            message.Write(spellID);
+        }
+
+        public override void NetIncomingMessageToPacket(NetIncomingMessage message)
+        {
+            entityID = message.ReadString();
+            spellID = message.ReadFloat();
         }
     }
 }
