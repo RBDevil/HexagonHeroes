@@ -7,10 +7,13 @@ namespace HexagonHeroes.Logic
     class Entity
     {
         public string ID { get; }
-        public int PositionX {get; set; }
+        public int PositionX { get; set; }
         public int PositionY { get; set; }
         public int MoveIndicatorX { get; set; }
         public int MoveIndicatorY { get; set; }
+        public int SpellIndicatorX { get; set; }
+        public int SpellIndicatorY { get; set; }
+        public int SpellID { get; set; }
         public int Health { get; set; }
         public string FactionID { get; }
         public int Damage { get; set; }

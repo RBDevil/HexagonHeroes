@@ -84,8 +84,21 @@ namespace HexagonHeroes.Client.States.Game
                     packet.NetIncomingMessageToPacket(message);
                     SetEntityHealth((HealthPacket)packet);
                     break;
+                case (int)PacketTypes.SpellIndicatorPacket:
+                    packet = new SpellIndicatorPacket();
+                    packet.NetIncomingMessageToPacket(message);
+                    SetSpellIndicator((SpellIndicatorPacket)packet);
+                    break;
             }
         }
+
+        static void SetSpellIndicator(SpellIndicatorPacket packet)
+        {
+            Entity player = entities.Find(e => e.ID == packet.playerID);
+            player.SpellIndicator = new Point((int)packet.X, (int)packet.Y);
+            player.spellID = (int)packet.spellID;
+        }
+
         static void SetEntityHealth(HealthPacket packet)
         {
             Entity player = entities.Find(e => e.ID == packet.entityID);

@@ -120,6 +120,11 @@ namespace Networking
 									packet.NetIncomingMessageToPacket(message);
 									RegisterMoveIndicator((MoveIndicatorPacket)packet);
 									break;
+								case (byte)PacketTypes.SpellIndicatorPacket:
+									packet = new SpellIndicatorPacket();
+									packet.NetIncomingMessageToPacket(message);
+									RegisterSpellIndicator((SpellIndicatorPacket)packet);
+									break;
 								default:
 									Logger.Error("Unhandled data / packet type: " + type);
 									break;
@@ -142,6 +147,26 @@ namespace Networking
 				}
 			}
 		}
+
+        private void RegisterSpellIndicator(SpellIndicatorPacket packet)
+        {
+			if (logic.UpdateSpellIndicator(packet.playerID, packet.spellID, (int)packet.X, (int)packet.Y))
+			{
+				List<NetConnection> all = server.Connections;
+				if (all.Count > 0)
+				{
+					SendSpellIndicatorToAll(all, packet.playerID, packet.spellID, packet.X, packet.Y);
+				}
+			}
+		}
+
+        private void SendSpellIndicatorToAll(List<NetConnection> all, string playerID, float spellID, float X, float Y)
+        {
+			NetOutgoingMessage outgoingMessage = server.CreateMessage();
+			new SpellIndicatorPacket() { playerID = playerID, spellID = spellID, X = X, Y = Y }.PacketToNetOutGoingMessage(outgoingMessage);
+			server.SendMessage(outgoingMessage, all, NetDeliveryMethod.ReliableOrdered, 0);
+		}
+
         private void RegisterMoveIndicator(MoveIndicatorPacket packet)
 		{
 			if (logic.UpdateMoveIndicator(packet.playerID, (int)packet.X, (int)packet.Y))

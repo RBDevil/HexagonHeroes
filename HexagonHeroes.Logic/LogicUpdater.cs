@@ -50,14 +50,22 @@ namespace HexagonHeroes.Logic
         }
         public bool UpdateMoveIndicator(string ID, int toX, int toY)
         {
-            // check if no other indicator points here
+            // check if no other indicator points here and no ally is here
+            string factionID = GetEntityFaction(ID);
             bool isEmpty = true;
-            foreach (var item in entities)
+            foreach (var entity in entities)
             {
-                if(item.MoveIndicatorX == toX && item.MoveIndicatorY == toY)
+                if(entity.MoveIndicatorX == toX && entity.MoveIndicatorY == toY)
                 {
-                    isEmpty = false;
-                    break;
+                    if (GetEntityFaction(entity.ID) == factionID)
+                    {
+                        int[] entityPos = GetEntityPosition(entity.ID);
+                        if (entityPos[0] == toX && entityPos[1] == toY)
+                        {
+                            isEmpty = false;
+                            break;
+                        }
+                    }
                 }
             }
             if (isEmpty)
@@ -135,6 +143,66 @@ namespace HexagonHeroes.Logic
         {
             reciever.Health -= attacker.Damage;
         }
+
+        public bool UpdateSpellIndicator(string playerID, float spellID, int toX, int toY)
+        {
+            Entity player = entities.Find(e => e.ID == playerID);
+
+            string heroType = GetHeroType(playerID);
+            switch (heroType)
+            {
+                case "tank":
+                    switch (spellID)
+                    {
+                        case 1:
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                    }
+                    break;
+                case "mage":
+                    switch (spellID)
+                    {
+                        case 1:
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                    }
+                    break;
+                case "support":
+                    switch (spellID)
+                    {
+                        case 1:
+                            player.SpellIndicatorX = toX;
+                            player.SpellIndicatorY = toY;
+                            player.SpellID = (int)spellID;
+                            return true;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                    }
+                    break;
+                case "fighter":
+                    switch (spellID)
+                    {
+                        case 1:
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                    }
+                    break;
+            }
+
+            return false;
+        }
+
         public string GetHeroType(string ID)
         {
             Entity entity = entities.Find(e => e.ID == ID);

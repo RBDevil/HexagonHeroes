@@ -12,7 +12,7 @@ namespace Packets
         MoveIndicatorPacket,
         HealthPacket,
         ChosenHeroPacket,
-        UsingSpellPacket,
+        SpellIndicatorPacket,
     }
 
     public interface IPacket
@@ -175,22 +175,28 @@ namespace Packets
             entityID = message.ReadString();
         }
     }
-    public class UsingSpellPacket : Packet
+    public class SpellIndicatorPacket : Packet
     {
-        public string entityID { get; set; }
+        public string playerID { get; set; }
         public float spellID { get; set; }
+        public float X { get; set; }
+        public float Y { get; set; }
 
         public override void PacketToNetOutGoingMessage(NetOutgoingMessage message)
         {
-            message.Write((byte)PacketTypes.UsingSpellPacket);
-            message.Write(entityID);
+            message.Write((byte)PacketTypes.SpellIndicatorPacket);
+            message.Write(playerID);
             message.Write(spellID);
+            message.Write(X);
+            message.Write(Y);
         }
 
         public override void NetIncomingMessageToPacket(NetIncomingMessage message)
         {
-            entityID = message.ReadString();
+            playerID = message.ReadString();
             spellID = message.ReadFloat();
+            X = message.ReadFloat();
+            Y = message.ReadFloat();
         }
     }
 }

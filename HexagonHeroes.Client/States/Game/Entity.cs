@@ -12,6 +12,8 @@ namespace HexagonHeroes.Client.States.Game
         public string ID { get; }
         public Point PositionIndex { get; private set; }
         public Point MoveIndicator { get; set; }
+        public Point SpellIndicator { get; set; }
+        public int spellID { get; set; }
         public Texture2D Texture { get; set; }
         public int Health { get; set; }
         public int MaxHealth { get; private set; }
@@ -159,6 +161,10 @@ namespace HexagonHeroes.Client.States.Game
                         Color.White, (float)(-Math.PI / 2), Textures.moveIndicatorOrigin, 1f, SpriteEffects.None, 1);
                 }
             }
+        }
+        virtual protected void DrawSpellIndicator(SpriteBatch sb)
+        {
+            
         }
     }
 }
